@@ -28,7 +28,7 @@ enum blake3_flags {
 #define INLINE static inline __attribute__((always_inline))
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64) 
+#if defined(__x86_64__) || defined(_M_X64)
 #define IS_X86
 #define IS_X86_64
 #endif
@@ -42,14 +42,14 @@ enum blake3_flags {
 #define IS_AARCH64
 #endif
 
-#if defined(IS_X86)
+#if defined(IS_X86) || defined(IS_WASM)
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
 #include <immintrin.h>
 #endif
 
-#if !defined(BLAKE3_USE_NEON) 
+#if !defined(BLAKE3_USE_NEON)
   // If BLAKE3_USE_NEON not manually set, autodetect based on AArch64ness
   #if defined(IS_AARCH64)
     #define BLAKE3_USE_NEON 1
@@ -58,7 +58,7 @@ enum blake3_flags {
   #endif
 #endif
 
-#if defined(IS_X86)
+#if defined(IS_X86) || defined(IS_WASM)
 #define MAX_SIMD_DEGREE 16
 #elif BLAKE3_USE_NEON == 1
 #define MAX_SIMD_DEGREE 4
@@ -130,7 +130,7 @@ INLINE unsigned int popcnt(uint64_t x) {
 }
 
 // Largest power of two less than or equal to x. As a special case, returns 1
-// when x is 0. 
+// when x is 0.
 INLINE uint64_t round_down_to_power_of_2(uint64_t x) {
   return 1ULL << highest_one(x | 1);
 }
@@ -213,7 +213,7 @@ void blake3_hash_many_portable(const uint8_t *const *inputs, size_t num_inputs,
                                uint8_t flags, uint8_t flags_start,
                                uint8_t flags_end, uint8_t *out);
 
-#if defined(IS_X86)
+#if defined(IS_X86) || defined(IS_WASM)
 #if !defined(BLAKE3_NO_SSE2)
 void blake3_compress_in_place_sse2(uint32_t cv[8],
                                    const uint8_t block[BLAKE3_BLOCK_LEN],
